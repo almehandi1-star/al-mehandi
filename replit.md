@@ -15,82 +15,79 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
+- **File uploads**: Multer (screenshots + QR codes)
 
 ## Structure
 
 ```text
 artifacts-monorepo/
 ├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
+│   ├── api-server/         # Express API server
+│   └── al-mehandi/         # Al Mehandi e-commerce React app
 ├── lib/                    # Shared libraries
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
 │   ├── api-client-react/   # Generated React Query hooks
 │   ├── api-zod/            # Generated Zod schemas from OpenAPI
 │   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
+├── scripts/                # Utility scripts
+├── uploads/                # Server-side file uploads
+│   ├── screenshots/        # Payment screenshots from customers
+│   └── qr/                 # QR code images per combo
 ```
+
+## Al Mehandi App
+
+**Brand**: Al Mehandi - Henna brand selling combo offers  
+**Instagram**: @al_mehandi_  
+**Phone/WhatsApp**: 8136917338  
+**Email**: almehandi1@gmail.com
+
+### Pages
+- `/` - Homepage with 6 combo product cards
+- `/checkout/:comboId` - Customer details form
+- `/payment/:orderId?comboId=X` - UPI QR payment + screenshot upload
+- `/order-confirmed` - Order success page
+- `/admin/login` - Admin authentication
+- `/admin` - Admin dashboard (order management)
+
+### Products (Combos)
+1. Combo 1: ₹70 - 1 Henna + 1 Nail Cone
+2. Combo 2: ₹100 - 1 Henna + 2 Nail Cones
+3. Combo 3: ₹110 - 2 Henna + 1 Nail Cone
+4. Combo 4: ₹190 - 3 Henna + 2 Nail Cones
+5. Combo 5: ₹250 - 4 Henna + 3 Nail Cones
+6. Combo 6: ₹560 - 10 Henna + 5 Nail Cones
+
+### Admin Credentials
+- Username: `admin`
+- Password: `almehandi2024`
+- Can be changed via `ADMIN_USERNAME` and `ADMIN_PASSWORD` env vars
+
+### API Endpoints
+- `POST /api/orders` - Create order
+- `POST /api/orders/:id/payment-screenshot` - Upload payment screenshot
+- `GET /api/qr/:comboId` - Get QR code for a combo
+- `POST /api/admin/login` - Admin login (returns sessionId)
+- `POST /api/admin/logout` - Admin logout
+- `GET /api/admin/orders` - List all orders (requires x-session-id header)
+- `PATCH /api/admin/orders/:id/status` - Update order status
+- `GET /api/admin/orders/export` - Export orders as CSV
+- `POST /api/admin/qr/:comboId` - Upload QR image for a combo
 
 ## TypeScript & Composite Projects
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
-
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
-
-## Root Scripts
-
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+Every package extends `tsconfig.base.json` which sets `composite: true`.
 
 ## Packages
 
+### `artifacts/al-mehandi` (`@workspace/al-mehandi`)
+React + Vite frontend. Uses wouter for routing, react-query + generated hooks for API, framer-motion for animations.
+
 ### `artifacts/api-server` (`@workspace/api-server`)
-
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
-
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
+Express 5 API server. Handles orders, admin auth (session-based), file uploads via Multer.
 
 ### `lib/db` (`@workspace/db`)
-
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
-
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
-
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
+Tables: `orders`, `qr_codes`
 
 ### `lib/api-spec` (`@workspace/api-spec`)
-
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
-
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
-
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` (`@workspace/api-zod`)
-
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
-
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+OpenAPI 3.1 spec. Run codegen: `pnpm --filter @workspace/api-spec run codegen`

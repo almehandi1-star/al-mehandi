@@ -283,7 +283,10 @@ export async function customFetch<T = unknown>(
     throw new TypeError(`customFetch: ${method} requests cannot have a body.`);
   }
 
-  const headers = mergeHeaders(isRequest(input) ? input.headers : undefined, headersInit);
+  const sessionId = typeof window !== "undefined" ? localStorage.getItem("admin_session_id") : null;
+  const sessionHeaders = sessionId ? { "x-session-id": sessionId } : {};
+
+  const headers = mergeHeaders(isRequest(input) ? input.headers : undefined, headersInit, sessionHeaders);
 
   if (
     typeof init.body === "string" &&
