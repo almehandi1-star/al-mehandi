@@ -1,7 +1,6 @@
 [build]
-builder = "dockerfile"
+builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "node artifacts/api-server/dist/index.cjs"
 healthcheckPath = "/api/healthz"
