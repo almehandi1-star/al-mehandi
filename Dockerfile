@@ -4,13 +4,21 @@ RUN npm install -g pnpm@10
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json tsconfig.base.json ./
-COPY . .
+COPY pnpm-workspace.yaml .
+COPY package.json .
+COPY pnpm-lock.yaml .
+COPY tsconfig.json .
+COPY tsconfig.base.json .
+
+COPY lib/ ./lib/
+COPY artifacts/api-server/ ./artifacts/api-server/
+COPY artifacts/al-mehandi/ ./artifacts/al-mehandi/
+
+RUN pnpm install --frozen-lockfile
 
 ENV PORT=8080
 ENV NODE_ENV=production
 
-RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @workspace/api-server run build
 RUN pnpm --filter @workspace/al-mehandi run build
 
