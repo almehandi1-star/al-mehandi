@@ -12,10 +12,12 @@ COPY tsconfig.base.json .
 
 COPY lib/ ./lib/
 COPY artifacts/api-server/ ./artifacts/api-server/
+COPY artifacts/al-mehandi/ ./artifacts/al-mehandi/
 
 RUN pnpm install --no-frozen-lockfile
 
 RUN pnpm --filter @workspace/api-server run build
+RUN pnpm --filter @workspace/al-mehandi run build
 
 EXPOSE 8080
 
