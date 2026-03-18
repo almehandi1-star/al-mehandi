@@ -1,0 +1,121 @@
+[Region: us-west1]
+=========================
+Using Detected Dockerfile
+=========================
+
+context: vvxb-J4pZ
+
+internal
+load build definition from Dockerfile
+0ms
+
+internal
+load metadata for docker.io/library/node:22-alpine
+152ms
+
+internal
+load .dockerignore
+0ms
+
+internal
+load build context
+0ms
+
+[ 1/14] FROM docker.io/library/node:22-alpine@sha256:8094c002d08262dba12645a3b4a15cd6cd627d30bc782f53229a2ec13ee22a00 cached
+5ms
+
+[ 2/14] RUN npm install -g pnpm@10
+1s
+npm notice
+
+[ 3/14] WORKDIR /app
+22ms
+
+[ 4/14] COPY pnpm-workspace.yaml .
+13ms
+
+[ 5/14] COPY package.json .
+14ms
+
+[ 6/14] COPY pnpm-lock.yaml .
+59ms
+
+[ 7/14] COPY tsconfig.json .
+16ms
+
+[ 8/14] COPY tsconfig.base.json .
+13ms
+
+[ 9/14] COPY lib/ ./lib/
+16ms
+
+1
+COPY artifacts/api-server/ ./artifacts/api-server/
+14ms
+
+1
+COPY artifacts/al-mehandi/ ./artifacts/al-mehandi/
+26ms
+
+1
+RUN pnpm install --no-frozen-lockfile
+9s
+Done in 6.5s using pnpm v10.26.1
+
+1
+RUN pnpm --filter @workspace/api-server run build
+1s
+⚡ Done in 145ms
+
+1
+RUN pnpm --filter @workspace/al-mehandi run build
+1s
+> @workspace/al-mehandi@0.0.0 build /app/artifacts/al-mehandi
+> vite build --config vite.config.ts
+/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:115
+		throw new Error(
+		      ^
+Error: Cannot find module @rollup/rollup-linux-x64-musl. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.
+
+    at requireWithFriendlyError (/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:115:9)
+    at Object.<anonymous> (/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:124:76)
+    at Module._compile (node:internal/modules/cjs/loader:1705:14)
+    at Object..js (node:internal/modules/cjs/loader:1838:10)
+    at Module.load (node:internal/modules/cjs/loader:1441:32)
+    at Function._load (node:internal/modules/cjs/loader:1263:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at cjsLoader (node:internal/modules/esm/translators:309:5)
+    at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:202:7) {
+  [cause]: Error: Cannot find module '@rollup/rollup-linux-x64-musl'
+  Require stack:
+  - /app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js
+      at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+      at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+      at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+      at Function._load (node:internal/modules/cjs/loader:1192:37)
+      at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+      at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+      at Module.require (node:internal/modules/cjs/loader:1463:12)
+      at require (node:internal/modules/helpers:147:16)
+      at requireWithFriendlyError (/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:97:10)
+      at Object.<anonymous> (/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js:124:76) {
+    code: 'MODULE_NOT_FOUND',
+    requireStack: [
+      '/app/node_modules/.pnpm/rollup@4.59.0/node_modules/rollup/dist/native.js'
+    ]
+  }
+}
+Node.js v22.22.1
+/app/artifacts/al-mehandi:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/al-mehandi@0.0.0 build: `vite build --config vite.config.ts`
+Exit status 1
+Dockerfile:20
+-------------------
+18 |
+19 |     RUN pnpm --filter @workspace/api-server run build
+20 | >>> RUN pnpm --filter @workspace/al-mehandi run build
+21 |
+22 |     EXPOSE 8080
+-------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c pnpm --filter @workspace/al-mehandi run build" did not complete successfully: exit code: 1
