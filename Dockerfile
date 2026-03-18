@@ -25,4 +25,4 @@ RUN pnpm --filter @workspace/al-mehandi run build
 
 EXPOSE 8080
 
-CMD ["node", "artifacts/api-server/dist/index.cjs"]
+CMD ["sh", "-c", "pnpm --filter @workspace/db exec drizzle-kit push --force && node artifacts/api-server/dist/index.cjs"]
