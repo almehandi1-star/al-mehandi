@@ -1,0 +1,8 @@
+[build]
+builder = "railpack"
+installCommand = "npm install -g pnpm@10 && pnpm install --no-frozen-lockfile"
+buildCommand = "pnpm --filter @workspace/api-server run build"
+
+[deploy]
+startCommand = "node artifacts/api-server/dist/index.cjs"
+healthcheckPath = "/api/healthz"
