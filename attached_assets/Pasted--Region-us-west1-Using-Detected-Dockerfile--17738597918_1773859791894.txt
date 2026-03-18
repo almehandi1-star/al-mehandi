@@ -1,0 +1,99 @@
+[Region: us-west1]
+=========================
+Using Detected Dockerfile
+=========================
+
+context: x3rc-Wcyg
+
+internal
+load build definition from Dockerfile
+0ms
+
+internal
+load metadata for docker.io/library/node:22-slim
+484ms
+
+auth
+library/node:pull token for registry-1.docker.io
+0ms
+
+internal
+load .dockerignore
+0ms
+
+[ 1/14] FROM docker.io/library/node:22-slim@sha256:4f77a690f2f8946ab16fe1e791a3ac0667ae1c3575c3e4d0d4589e9ed5bfaf3d cached
+7ms
+
+internal
+load build context
+0ms
+
+[ 2/14] RUN npm install -g pnpm@10
+4s
+npm notice
+
+[ 3/14] WORKDIR /app
+65ms
+
+[ 4/14] COPY pnpm-workspace.yaml .
+19ms
+
+[ 5/14] COPY package.json .
+21ms
+
+[ 6/14] COPY pnpm-lock.yaml .
+29ms
+
+[ 7/14] COPY tsconfig.json .
+26ms
+
+[ 8/14] COPY tsconfig.base.json .
+371ms
+
+[ 9/14] COPY lib/ ./lib/
+1s
+
+1
+COPY artifacts/api-server/ ./artifacts/api-server/
+38ms
+
+1
+COPY artifacts/al-mehandi/ ./artifacts/al-mehandi/
+77ms
+
+1
+RUN pnpm install --no-frozen-lockfile
+10s
+Done in 8.4s using pnpm v10.26.1
+
+1
+RUN pnpm --filter @workspace/api-server run build
+1s
+⚡ Done in 182ms
+
+1
+RUN pnpm --filter @workspace/al-mehandi run build
+1s
+> @workspace/al-mehandi@0.0.0 build /app/artifacts/al-mehandi
+> vite build --config vite.config.ts
+failed to load config from /app/artifacts/al-mehandi/vite.config.ts
+error during build:
+Error: PORT environment variable is required but was not provided.
+
+    at file:///app/artifacts/al-mehandi/node_modules/.vite-temp/vite.config.ts.timestamp-1773859820975-cc9ed11a2fcb2.mjs:10:9
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
+    at async loadConfigFromBundledFile (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:35909:12)
+    at async bundleAndLoadConfigFile (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:35797:17)
+    at async loadConfigFromFile (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:35764:42)
+    at async resolveConfig (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:35413:22)
+    at async createBuilder (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:33875:19)
+    at async CAC.<anonymous> (file:///app/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/node/cli.js:629:10)
+/app/artifacts/al-mehandi:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/al-mehandi@0.0.0 build: `vite build --config vite.config.ts`
+Exit status 1
+Dockerfile:20
+-------------------
+18 |
+19 |     RUN pnpm --filter @workspace/api-server run build
+20 | >>> RUN pnpm --filter @workspace/al-mehandi run build

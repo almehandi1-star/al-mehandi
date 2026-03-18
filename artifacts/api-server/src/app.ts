@@ -13,7 +13,7 @@ app.use("/api/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use("/api", router);
 
-const frontendDist = path.join(process.cwd(), "artifacts/al-mehandi/dist");
+const frontendDist = path.join(process.cwd(), "artifacts/al-mehandi/dist/public");
 app.use(express.static(frontendDist));
 
 app.get("*", (_req, res) => {
