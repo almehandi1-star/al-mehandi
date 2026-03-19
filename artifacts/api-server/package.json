@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "NODE_ENV=development tsx ./src/index.ts",
-    "build": "tsx ./build.ts",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
-  },
+  "dev": "NODE_ENV=development tsx ./src/index.ts",
+  "build": "tsx ./build.ts",
+  "start": "npx drizzle-kit push && node dist/index.js",
+  "db:push": "drizzle-kit push",
+  "typecheck": "tsc -p tsconfig.json --noEmit"
+},
   "dependencies": {
     "@workspace/api-zod": "workspace:*",
     "@workspace/db": "workspace:*",
